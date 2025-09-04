@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Graphe k-partite – Cytoscape (Modes & Niveaux)</title>
+  <script src="https://unpkg.com/cytoscape@3.26.0/dist/cytoscape.min.js"></script>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="grid">
+    <!-- Zone 3 : Consignes -->
+    <header id="zone-3">
+      <div>
+        <h1>Consignes</h1>
+        <p>
+          Choisis un <strong>mode</strong> : <em>Personnalisé</em> (tu règles k & n) ou <em>Niveaux</em> (préconfigurés).<br>
+          « Générer » crée un <em>k-partite</em> (complet en perso).
+        </p>
+      </div>
+      <div id="zone-4">
+        <button class="info-btn" id="openHelp" aria-label="Informations">i</button>
+      </div>
+    </header>
+
+    <!-- Zone 1 : Graphe Cytoscape -->
+    <section id="zone-1" aria-label="Zone graphe">
+      <div id="cy" role="application" aria-label="Graphe Cytoscape"></div>
+    </section>
+
+    <!-- Zone 2 : Panneau de boutons / contrôles -->
+    <aside id="zone-2" aria-label="Panneau de contrôle">
+      <div class="card">
+        <!-- Choix du mode -->
+        <div class="row">
+          <label for="mode">Mode</label>
+          <select id="mode">
+            <option value="custom" selected>Personnalisé</option>
+            <option value="levels">Niveaux</option>
+          </select>
+
+          <!-- Contrôles personnalisés -->
+          <div id="custom-controls" class="row gap-sm">
+            <label for="k">Parties (k)</label>
+            <select id="k">
+              <option value="2" selected>2</option>
+              <option value="3">3</option>
+              <option value="4">4</option>
+              <option value="5">5</option>
+              <option value="6">6</option>
+            </select>
+
+            <label for="n">Sommets / partie (n)</label>
+            <select id="n">
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3" selected>3</option>
+              <option value="4">4</option>
+              <option value="5">5</option>
+              <option value="6">6</option>
+            </select>
+          </div>
+
+          <!-- Contrôles niveaux -->
+          <div id="level-controls" class="row hidden gap-sm">
+            <label for="level">Niveau</label>
+            <select id="level" aria-label="Choisir un niveau prédéfini">
+              <!-- Options injectées par script.js -->
+            </select>
+          </div>
+        </div>
+
+        <div class="row" style="margin-top:10px">
+          <button class="primary" id="btnBuild">Générer</button>
+          <button class="ghost" id="btnRandom">Arêtes aléatoires</button>
+          <button class="ghost" id="btnClear">Réinitialiser</button>
+        </div>
+
+        <p class="hint">
+          « Personnalisé » : k = nombre de parties, n = sommets par partie. <br>
+          « Niveaux » : graphes préconfigurés (aucune arête dans une même partie).
+        </p>
+      </div>
+
+      <div class="card">
+        <h3 style="margin:0 0 6px 0">Infos graphe</h3>
+        <p id="stats" class="hint">—</p>
+      </div>
+
+      <div class="card">
+        <h3 style="margin:0 0 6px 0">Opérations rapides</h3>
+        <div class="row">
+          <button id="btnLayout" class="ghost">Relancer le layout</button>
+          <button id="btnFit" class="ghost">Adapter à la vue</button>
+        </div>
+      </div>
+    </aside>
+  </main>
+
+  <dialog id="help">
+    <div class="modal-header">
+      <strong>À propos</strong>
+      <button class="info-btn" id="closeHelp" aria-label="Fermer">×</button>
+    </div>
+    <div class="modal-body">
+      <p>
+        <strong>Ajouter une arrête :</strong> Cliquer sur deux nœuds.
+        <br>
+        <strong>Supprimer une arrête :</strong> Double-cliquer sur une arrête.
+        <br>
+        Vous pouvez aussi déplacer les nœuds pour ajuster le graphe. Sélectionnez un nœud pour le déplacer.
+        <br>
+        Pour en sélectionner plusieurs, utilisez la touche <kbd>Shift</kbd> (Majuscule).
+        <br>
+        <strong>Bouton "Réinitialiser" :</strong> supprime tous les nœuds et arêtes.
+        <br>
+        <strong>Bouton "adapter à la vue" :</strong> recentre et zoom sur le graphe.
+        <br>
+        <strong>Bouton "Relancer le layout" :</strong> réorganise le graphe.
+      </p>
+    </div>
+  </dialog>
+
+
+<script src="niveau1.js"></script>
+<script src="niveau2.js"></script>
+<script src="niveau3.js"></script>
+<script src="niveau4.js"></script>
+<script src="niveau5.js"></script>
+<script src="niveau6.js"></script>
+<script src="script.js"></script>
+
+
+</body>
+</html>
