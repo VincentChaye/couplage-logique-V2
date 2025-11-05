@@ -1,0 +1,80 @@
+{
+  "version": "1.0",
+  "metadata": {
+    "name": "Exemple - Graphe bipartite simple",
+    "created": "2025-11-05T00:00:00.000Z",
+    "description": "Un graphe bipartite avec 3 nœuds de chaque côté et quelques arêtes",
+    "nodes_count": 6,
+    "edges_count": 4
+  },
+  "nodes": [
+    {
+      "id": "a1",
+      "label": "Alice",
+      "part": 1,
+      "order": 1,
+      "position": { "x": 80, "y": 80 }
+    },
+    {
+      "id": "a2",
+      "label": "Bob",
+      "part": 1,
+      "order": 2,
+      "position": { "x": 80, "y": 150 }
+    },
+    {
+      "id": "a3",
+      "label": "Charlie",
+      "part": 1,
+      "order": 3,
+      "position": { "x": 80, "y": 220 }
+    },
+    {
+      "id": "b1",
+      "label": "Math",
+      "part": 2,
+      "order": 1,
+      "position": { "x": 220, "y": 80 }
+    },
+    {
+      "id": "b2",
+      "label": "Physique",
+      "part": 2,
+      "order": 2,
+      "position": { "x": 220, "y": 150 }
+    },
+    {
+      "id": "b3",
+      "label": "Chimie",
+      "part": 2,
+      "order": 3,
+      "position": { "x": 220, "y": 220 }
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "source": "a1",
+      "target": "b1",
+      "classes": ""
+    },
+    {
+      "id": "e2",
+      "source": "a1",
+      "target": "b2",
+      "classes": ""
+    },
+    {
+      "id": "e3",
+      "source": "a2",
+      "target": "b3",
+      "classes": ""
+    },
+    {
+      "id": "e4",
+      "source": "a3",
+      "target": "b1",
+      "classes": ""
+    }
+  ]
+}

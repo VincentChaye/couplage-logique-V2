@@ -42,14 +42,25 @@ const cy = cytoscape({
 
 /* ==== Sélecteurs UI ==== */
 const modeSel = document.getElementById('mode');
-const customControls = document.getElementById('custom-controls');
+const editorControls = document.getElementById('editor-controls');
 const levelControls = document.getElementById('level-controls');
-const kSel = document.getElementById('k');
-const nSel = document.getElementById('n');
+const templateControls = document.getElementById('template-controls');
 const levelSel = document.getElementById('level');
+const templateSel = document.getElementById('template');
 const btnRandom = document.getElementById('btnRandom');
 const btnPotential = document.getElementById('btnPotential');
 const help = document.getElementById('help');
+
+/* ==== Nouveaux sélecteurs pour l'éditeur ==== */
+const nodePartInput = document.getElementById('nodePart');
+const nodeLabelInput = document.getElementById('nodeLabel');
+const btnAddNode = document.getElementById('btnAddNode');
+const btnDeleteNode = document.getElementById('btnDeleteNode');
+const btnExportJSON = document.getElementById('btnExportJSON');
+const btnImportJSON = document.getElementById('btnImportJSON');
+const fileInput = document.getElementById('fileInput');
+const btnLoadLevel = document.getElementById('btnLoadLevel');
+const btnLoadTemplate = document.getElementById('btnLoadTemplate');
 
 /* ==== Zone 3 : titre & consignes (par défaut pour le mode personnalisé) ==== */
 const TITLE_EL = document.querySelector('#zone-3 h1');
@@ -233,7 +244,8 @@ window.announceWin = function (message) {
 /* === Bouton "Arêtes aléatoires" : helpers === */
 function setRandomButtonState() {
   if (!btnRandom) return;
-  const isLevels = modeSel.value === 'levels';
+  const mode = modeSel.value;
+  const isLevels = mode === 'levels';
   btnRandom.disabled = isLevels;
   btnRandom.title = isLevels
     ? 'Désactivé en mode Niveaux'
@@ -330,18 +342,259 @@ function addRandomEdges() {
   cy.add(batch); refreshStats();
 }
 
-/* ==== Dessin principal (mode personnalisé) ==== */
-function drawK(k, n) {
-  CURRENT_CONTEXT = { mode: 'custom', levelId: null, k, n };
+/* ==== Dessin principal (mode éditeur) ==== */
+function initEditor() {
+  CURRENT_CONTEXT = { mode: 'editor', levelId: null, k: null, n: null };
   hideWinBanner();
-
-  setZone3Title(TITLE_INIT);
-  setConsignes(CONSIGNE_INIT);
-  cy.elements().remove();
-  cy.add(buildKPartNodes(k, n));
-  applyPresetPositions(computePresetPositions(k, n));
+  setZone3Title("Éditeur de graphe");
+  setConsignes("Créez votre propre graphe en ajoutant des nœuds et en reliant les sommets. Utilisez le panneau de droite pour ajouter des nœuds par partie, puis cliquez sur deux nœuds pour créer une arête.");
   refreshStats();
   enableInteractiveEdges();
+}
+
+/* ==== Gestion des nœuds ==== */
+let nodeCounter = 0;
+
+function addNode() {
+  const part = parseInt(nodePartInput.value, 10) || 1;
+  const label = nodeLabelInput.value.trim() || `N${++nodeCounter}`;
+  const id = `node_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  
+  cy.add({
+    group: 'nodes',
+    data: { id, label, part, order: cy.nodes().filter(n => n.data('part') === part).length + 1 }
+  });
+  
+  applyColumnsByPart();
+  refreshStats();
+  nodeLabelInput.value = '';
+  nodeLabelInput.focus();
+}
+
+function deleteSelectedNodes() {
+  const selected = cy.$(':selected');
+  if (selected.length === 0) {
+    alert('Veuillez sélectionner un ou plusieurs nœuds à supprimer (cliquez dessus)');
+    return;
+  }
+  if (confirm(`Supprimer ${selected.length} nœud(s) sélectionné(s) ?`)) {
+    selected.remove();
+    refreshStats();
+  }
+}
+
+/* ==== Import/Export JSON ==== */
+function exportGraphToJSON() {
+  const nodes = cy.nodes().map(node => ({
+    id: node.id(),
+    label: node.data('label'),
+    part: node.data('part'),
+    order: node.data('order'),
+    position: node.position()
+  }));
+  
+  const edges = cy.edges().map(edge => ({
+    id: edge.id(),
+    source: edge.source().id(),
+    target: edge.target().id(),
+    classes: edge.classes().join(' ')
+  }));
+  
+  const graphData = {
+    version: '1.0',
+    metadata: {
+      name: 'Graphe personnalisé',
+      created: new Date().toISOString(),
+      nodes_count: nodes.length,
+      edges_count: edges.length
+    },
+    nodes,
+    edges
+  };
+  
+  const jsonStr = JSON.stringify(graphData, null, 2);
+  const blob = new Blob([jsonStr], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `graphe_${Date.now()}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function importGraphFromJSON(jsonData) {
+  try {
+    const data = typeof jsonData === 'string' ? JSON.parse(jsonData) : jsonData;
+    
+    if (!data.nodes || !Array.isArray(data.nodes)) {
+      throw new Error('Format JSON invalide : propriété "nodes" manquante');
+    }
+    
+    cy.elements().remove();
+    
+    // Ajouter les nœuds
+    data.nodes.forEach(node => {
+      cy.add({
+        group: 'nodes',
+        data: {
+          id: node.id,
+          label: node.label,
+          part: node.part || 1,
+          order: node.order || 0
+        },
+        position: node.position || { x: 100, y: 100 }
+      });
+    });
+    
+    // Ajouter les arêtes
+    if (data.edges && Array.isArray(data.edges)) {
+      data.edges.forEach(edge => {
+        cy.add({
+          group: 'edges',
+          data: {
+            id: edge.id || `e_${edge.source}_${edge.target}`,
+            source: edge.source,
+            target: edge.target
+          },
+          classes: edge.classes || ''
+        });
+      });
+    }
+    
+    cy.fit(undefined, 40);
+    refreshStats();
+    enableInteractiveEdges();
+    
+    alert(`Graphe importé avec succès !\n${data.nodes.length} nœuds, ${data.edges?.length || 0} arêtes`);
+  } catch (error) {
+    alert(`Erreur lors de l'import : ${error.message}`);
+    console.error('Erreur import JSON:', error);
+  }
+}
+
+/* ==== Templates de graphes ==== */
+const GRAPH_TEMPLATES = {
+  bipartite_3_3: {
+    name: 'Bipartite K₂,₃',
+    nodes: [
+      { id: 'a1', label: 'A1', part: 1, order: 1 },
+      { id: 'a2', label: 'A2', part: 1, order: 2 },
+      { id: 'b1', label: 'B1', part: 2, order: 1 },
+      { id: 'b2', label: 'B2', part: 2, order: 2 },
+      { id: 'b3', label: 'B3', part: 2, order: 3 }
+    ],
+    edges: []
+  },
+  tripartite_2_2_2: {
+    name: 'Tripartite 2-2-2',
+    nodes: [
+      { id: 'a1', label: 'A1', part: 1, order: 1 },
+      { id: 'a2', label: 'A2', part: 1, order: 2 },
+      { id: 'b1', label: 'B1', part: 2, order: 1 },
+      { id: 'b2', label: 'B2', part: 2, order: 2 },
+      { id: 'c1', label: 'C1', part: 3, order: 1 },
+      { id: 'c2', label: 'C2', part: 3, order: 2 }
+    ],
+    edges: []
+  },
+  star_5: {
+    name: 'Étoile 5 branches',
+    nodes: [
+      { id: 'center', label: 'Centre', part: 1, order: 1 },
+      { id: 's1', label: '1', part: 2, order: 1 },
+      { id: 's2', label: '2', part: 2, order: 2 },
+      { id: 's3', label: '3', part: 2, order: 3 },
+      { id: 's4', label: '4', part: 2, order: 4 },
+      { id: 's5', label: '5', part: 2, order: 5 }
+    ],
+    edges: [
+      { source: 'center', target: 's1' },
+      { source: 'center', target: 's2' },
+      { source: 'center', target: 's3' },
+      { source: 'center', target: 's4' },
+      { source: 'center', target: 's5' }
+    ]
+  },
+  cycle_6: {
+    name: 'Cycle 6 nœuds',
+    nodes: [
+      { id: 'n1', label: '1', part: 1, order: 1 },
+      { id: 'n2', label: '2', part: 1, order: 2 },
+      { id: 'n3', label: '3', part: 1, order: 3 },
+      { id: 'n4', label: '4', part: 1, order: 4 },
+      { id: 'n5', label: '5', part: 1, order: 5 },
+      { id: 'n6', label: '6', part: 1, order: 6 }
+    ],
+    edges: [
+      { source: 'n1', target: 'n2' },
+      { source: 'n2', target: 'n3' },
+      { source: 'n3', target: 'n4' },
+      { source: 'n4', target: 'n5' },
+      { source: 'n5', target: 'n6' },
+      { source: 'n6', target: 'n1' }
+    ]
+  },
+  complete_4: {
+    name: 'Complet K₄',
+    nodes: [
+      { id: 'a', label: 'A', part: 1, order: 1 },
+      { id: 'b', label: 'B', part: 1, order: 2 },
+      { id: 'c', label: 'C', part: 1, order: 3 },
+      { id: 'd', label: 'D', part: 1, order: 4 }
+    ],
+    edges: [
+      { source: 'a', target: 'b' },
+      { source: 'a', target: 'c' },
+      { source: 'a', target: 'd' },
+      { source: 'b', target: 'c' },
+      { source: 'b', target: 'd' },
+      { source: 'c', target: 'd' }
+    ]
+  }
+};
+
+function loadTemplate(templateId) {
+  const template = GRAPH_TEMPLATES[templateId];
+  if (!template) {
+    alert('Template non trouvé');
+    return;
+  }
+  
+  cy.elements().remove();
+  
+  // Ajouter les nœuds
+  template.nodes.forEach(node => {
+    cy.add({
+      group: 'nodes',
+      data: {
+        id: node.id,
+        label: node.label,
+        part: node.part,
+        order: node.order
+      }
+    });
+  });
+  
+  // Ajouter les arêtes
+  template.edges.forEach((edge, idx) => {
+    cy.add({
+      group: 'edges',
+      data: {
+        id: `e${idx}`,
+        source: edge.source,
+        target: edge.target
+      }
+    });
+  });
+  
+  applyColumnsByPart();
+  refreshStats();
+  enableInteractiveEdges();
+  
+  setZone3Title(template.name);
+  setConsignes(`Template chargé : ${template.name}. Vous pouvez maintenant modifier ce graphe en ajoutant ou supprimant des nœuds et arêtes.`);
 }
 
 /* ==== NIVEAU 1 (local) ==== */
@@ -429,37 +682,104 @@ function drawLevel(levelId) {
 
 /* ==== UI ==== */
 modeSel.addEventListener('change', () => {
-  const isLevels = modeSel.value === 'levels';
-  if (customControls) customControls.classList.toggle('hidden', isLevels);
-  if (levelControls) levelControls.classList.toggle('hidden', !isLevels);
-  if (isLevels) {
+  const mode = modeSel.value;
+  
+  // Afficher/masquer les contrôles selon le mode
+  if (editorControls) editorControls.classList.toggle('hidden', mode !== 'editor');
+  if (levelControls) levelControls.classList.toggle('hidden', mode !== 'levels');
+  if (templateControls) templateControls.classList.toggle('hidden', mode !== 'templates');
+  
+  if (mode === 'levels') {
     ensureLevelOptions();
     if (levelSel && levelSel.value) setConsignesForLevel(levelSel.value);
-  } else {
-    setZone3Title(TITLE_INIT);
-    setConsignes(CONSIGNE_INIT);
+  } else if (mode === 'editor') {
+    initEditor();
+  } else if (mode === 'templates') {
+    setZone3Title('Templates de graphes');
+    setConsignes('Choisissez un template prédéfini pour commencer rapidement. Vous pourrez ensuite le personnaliser.');
   }
+  
   setRandomButtonState();
   setPotentialButtonState();
 });
 
-document.getElementById('btnBuild').addEventListener('click', () => {
-  if (modeSel.value === 'levels') {
+/* ==== Event listeners pour l'éditeur ==== */
+if (btnAddNode) {
+  btnAddNode.addEventListener('click', addNode);
+}
+
+if (nodeLabelInput) {
+  nodeLabelInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      addNode();
+    }
+  });
+}
+
+if (btnDeleteNode) {
+  btnDeleteNode.addEventListener('click', deleteSelectedNodes);
+}
+
+if (btnExportJSON) {
+  btnExportJSON.addEventListener('click', () => {
+    if (cy.nodes().length === 0) {
+      alert('Le graphe est vide. Ajoutez des nœuds avant d\'exporter.');
+      return;
+    }
+    exportGraphToJSON();
+  });
+}
+
+if (btnImportJSON) {
+  btnImportJSON.addEventListener('click', () => {
+    fileInput.click();
+  });
+}
+
+if (fileInput) {
+  fileInput.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        importGraphFromJSON(event.target.result);
+      } catch (error) {
+        alert(`Erreur lors de la lecture du fichier : ${error.message}`);
+      }
+    };
+    reader.readAsText(file);
+    fileInput.value = ''; // Reset pour permettre de réimporter le même fichier
+  });
+}
+
+if (btnLoadLevel) {
+  btnLoadLevel.addEventListener('click', () => {
     const id = (levelSel && levelSel.value) ? levelSel.value : 'niveau1';
     drawLevel(id);
-  } else {
-    drawK(parseInt(kSel.value, 10), parseInt(nSel.value, 10));
-  }
-});
+  });
+}
 
-// Bouton "Arêtes aléatoires" : actif uniquement en mode personnalisé
+if (btnLoadTemplate) {
+  btnLoadTemplate.addEventListener('click', () => {
+    const templateId = templateSel.value;
+    if (!templateId) {
+      alert('Veuillez choisir un template');
+      return;
+    }
+    loadTemplate(templateId);
+  });
+}
+
+// Bouton "Arêtes aléatoires" : actif en mode éditeur et templates
 if (btnRandom) {
   btnRandom.addEventListener('click', () => {
     if (modeSel.value === 'levels') return;
     if (cy.nodes().length === 0) {
-      const k = parseInt(kSel.value, 10);
-      const n = parseInt(nSel.value, 10);
-      drawK(k, n);
+      alert('Ajoutez des nœuds d\'abord ou chargez un template');
+      return;
     }
     addRandomEdges();
   });
@@ -489,11 +809,7 @@ document.getElementById('btnClear').addEventListener('click', () => {
 });
 
 document.getElementById('btnLayout').addEventListener('click', () => {
-  if (modeSel.value === 'levels') {
-    applyColumnsByPart(); // même layout pour les niveaux
-  } else {
-    applyPresetPositions(computePresetPositions(parseInt(kSel.value, 10), parseInt(nSel.value, 10)));
-  }
+  applyColumnsByPart();
 });
 
 document.getElementById('btnFit').addEventListener('click', () => {
@@ -505,7 +821,7 @@ document.getElementById('openHelp').addEventListener('click', () => help.showMod
 document.getElementById('closeHelp').addEventListener('click', () => help.close());
 
 /* ==== Démarrage ==== */
-drawLevel('niveau1');
+initEditor();
 setRandomButtonState();
 setPotentialButtonState();
 
