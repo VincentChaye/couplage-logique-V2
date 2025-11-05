@@ -41,7 +41,7 @@
   }
 
   function checkSolution(){
-    const edges = cy.edges().map(e => [e.source().id(), e.target().id()]);
+    const edges = cy.edges().not('.potential').map(e => [e.source().id(), e.target().id()]);
     const ok = SOL_EDGES.every(sol =>
       edges.some(e =>
         (e[0] === sol[0] && e[1] === sol[1]) ||
@@ -49,7 +49,7 @@
       )
     );
     if (ok && edges.length === SOL_EDGES.length){
-      announceWin("Bravo ! Tu as réussi le niveau X 🎉");
+      announceWin("Bravo ! Tu as réussi le niveau 3 🎉");
     }
   }
 
@@ -62,18 +62,18 @@
 
     // Partie 1 : Projecteurs (ordre : rouge, bleu, vert, jaune, violet)
     cy.add([
-      { data:{ id:"proj_rouge",  label:"Proj. rouge",  part:1, order:1 } },
-      { data:{ id:"proj_bleu",   label:"Proj. bleu",   part:1, order:2 } },
-      { data:{ id:"proj_vert",   label:"Proj. vert",   part:1, order:3 } },
-      { data:{ id:"proj_jaune",  label:"Proj. jaune",  part:1, order:4 } },
-      { data:{ id:"proj_violet", label:"Proj. violet", part:1, order:5 } },
+      { data:{ id:"proj_rouge",  label:"Proj. rouge",  part:1, order:1 }, classes: 'level-node' },
+      { data:{ id:"proj_bleu",   label:"Proj. bleu",   part:1, order:2 }, classes: 'level-node' },
+      { data:{ id:"proj_vert",   label:"Proj. vert",   part:1, order:3 }, classes: 'level-node' },
+      { data:{ id:"proj_jaune",  label:"Proj. jaune",  part:1, order:4 }, classes: 'level-node' },
+      { data:{ id:"proj_violet", label:"Proj. violet", part:1, order:5 }, classes: 'level-node' },
 
       // Partie 2 : Interrupteurs (ordre : rouge, bleu, vert, jaune, violet)
-      { data:{ id:"int_rouge",  label:"Inter. rouge",  part:2, order:1 } },
-      { data:{ id:"int_bleu",   label:"Inter. bleu",   part:2, order:2 } },
-      { data:{ id:"int_vert",   label:"Inter. vert",   part:2, order:3 } },
-      { data:{ id:"int_jaune",  label:"Inter. jaune",  part:2, order:4 } },
-      { data:{ id:"int_violet", label:"Inter. violet", part:2, order:5 } },
+      { data:{ id:"int_rouge",  label:"Inter. rouge",  part:2, order:1 }, classes: 'level-node' },
+      { data:{ id:"int_bleu",   label:"Inter. bleu",   part:2, order:2 }, classes: 'level-node' },
+      { data:{ id:"int_vert",   label:"Inter. vert",   part:2, order:3 }, classes: 'level-node' },
+      { data:{ id:"int_jaune",  label:"Inter. jaune",  part:2, order:4 }, classes: 'level-node' },
+      { data:{ id:"int_violet", label:"Inter. violet", part:2, order:5 }, classes: 'level-node' },
     ]);
 
     // Coloration des nœuds selon leur nom

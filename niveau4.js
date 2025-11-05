@@ -28,7 +28,7 @@
   ];
 
   function checkSolution(){
-    const edges = cy.edges().map(e => [e.source().id(), e.target().id()]);
+    const edges = cy.edges().not('.potential').map(e => [e.source().id(), e.target().id()]);
     const ok = SOL_EDGES.every(sol =>
       edges.some(e =>
         (e[0] === sol[0] && e[1] === sol[1]) ||
@@ -36,7 +36,7 @@
       )
     );
     if (ok && edges.length === SOL_EDGES.length){
-      announceWin("Bravo ! Tu as réussi le niveau X 🎉");
+      announceWin("Bravo ! Tu as réussi le niveau 4 🎉");
     }
   }
 
@@ -50,17 +50,17 @@
     // Partie 1 (ordre exact) : Asterix, Obelix, Idefix, Panoramix, Abraracourcix
     // Partie 2 (ordre exact) : Glaive, Menhir, Parchemin, Sanglier, Vase
     cy.add([
-      { data:{ id:"asterix",       label:"Asterix",       part:1, order:1 } },
-      { data:{ id:"obelix",        label:"Obelix",        part:1, order:2 } },
-      { data:{ id:"idefix",        label:"Idefix",        part:1, order:3 } },
-      { data:{ id:"panoramix",     label:"Panoramix",     part:1, order:4 } },
-      { data:{ id:"abraracourcix", label:"Abraracourcix", part:1, order:5 } },
+      { data:{ id:"asterix",       label:"Asterix",       part:1, order:1 }, classes: 'level-node' },
+      { data:{ id:"obelix",        label:"Obelix",        part:1, order:2 }, classes: 'level-node' },
+      { data:{ id:"idefix",        label:"Idefix",        part:1, order:3 }, classes: 'level-node' },
+      { data:{ id:"panoramix",     label:"Panoramix",     part:1, order:4 }, classes: 'level-node' },
+      { data:{ id:"abraracourcix", label:"Abraracourcix", part:1, order:5 }, classes: 'level-node' },
 
-      { data:{ id:"glaive",     label:"Glaive",     part:2, order:1 } },
-      { data:{ id:"menhir",     label:"Menhir",     part:2, order:2 } },
-      { data:{ id:"parchemin",  label:"Parchemin",  part:2, order:3 } },
-      { data:{ id:"sanglier",   label:"Sanglier",   part:2, order:4 } },
-      { data:{ id:"vase",       label:"Vase",       part:2, order:5 } },
+      { data:{ id:"glaive",     label:"Glaive",     part:2, order:1 }, classes: 'level-node' },
+      { data:{ id:"menhir",     label:"Menhir",     part:2, order:2 }, classes: 'level-node' },
+      { data:{ id:"parchemin",  label:"Parchemin",  part:2, order:3 }, classes: 'level-node' },
+      { data:{ id:"sanglier",   label:"Sanglier",   part:2, order:4 }, classes: 'level-node' },
+      { data:{ id:"vase",       label:"Vase",       part:2, order:5 }, classes: 'level-node' },
     ]);
 
     // Layout & interactions

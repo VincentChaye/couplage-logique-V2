@@ -72,13 +72,13 @@
 
         <div class="row" style="margin-top:10px">
           <button class="primary" id="btnBuild">Générer</button>
-          <button class="ghost" id="btnRandom">Arêtes aléatoires</button>
+          <button class="ghost" id="btnPotential">Afficher arêtes potentielles</button>
           <button class="ghost" id="btnClear">Réinitialiser</button>
         </div>
 
         <p class="hint">
-          « Personnalisé » : k = nombre de parties, n = sommets par partie. <br>
-          « Niveaux » : graphes préconfigurés (aucune arête dans une même partie).
+          <strong>Personnalisé</strong> : forme géométrique (triangle, carré...). <br>
+          <strong>Niveaux</strong> : énigmes éducatives préconfigurées.
         </p>
       </div>
 
@@ -88,10 +88,17 @@
       </div>
 
       <div class="card">
-        <h3 style="margin:0 0 6px 0">Opérations rapides</h3>
+        <h3 style="margin:0 0 6px 0">Opérations</h3>
         <div class="row">
           <button id="btnLayout" class="ghost">Relancer le layout</button>
-          <button id="btnFit" class="ghost">Adapter à la vue</button>
+          <button id="btnFit" class="ghost">Recentrer</button>
+        </div>
+        <div class="row" style="margin-top:8px" id="custom-tools">
+          <button id="btnRename" class="ghost">Renommer sommet</button>
+        </div>
+        <div class="row" style="margin-top:8px" id="custom-tools-2">
+          <button id="btnExport" class="ghost">📥 Exporter</button>
+          <button id="btnImport" class="ghost">📤 Importer</button>
         </div>
       </div>
     </aside>
@@ -104,19 +111,17 @@
     </div>
     <div class="modal-body">
       <p>
-        <strong>Ajouter une arrête :</strong> Cliquer sur deux nœuds.
-        <br>
-        <strong>Supprimer une arrête :</strong> Double-cliquer sur une arrête.
-        <br>
-        Vous pouvez aussi déplacer les nœuds pour ajuster le graphe. Sélectionnez un nœud pour le déplacer.
-        <br>
-        Pour en sélectionner plusieurs, utilisez la touche <kbd>Shift</kbd> (Majuscule).
-        <br>
-        <strong>Bouton "Réinitialiser" :</strong> supprime tous les nœuds et arêtes.
-        <br>
-        <strong>Bouton "adapter à la vue" :</strong> recentre et zoom sur le graphe.
-        <br>
-        <strong>Bouton "Relancer le layout" :</strong> réorganise le graphe.
+        <strong>➕ Ajouter une arête :</strong> Cliquer sur deux nœuds successivement (entre parties différentes uniquement).
+        <br><br>
+        <strong>❌ Supprimer une arête :</strong> Double-cliquer sur une arête verte.
+        <br><br>
+        <strong>🔍 Arêtes potentielles :</strong> Affiche en gris clair toutes les connexions possibles entre parties différentes.
+        <br><br>
+        <strong>✏️ Renommer :</strong> Sélectionnez un sommet puis cliquez sur "Renommer sommet".
+        <br><br>
+        <strong>💾 Export/Import :</strong> Sauvegardez ou chargez votre graphe au format JSON (mode création uniquement).
+        <br><br>
+        <strong>🎮 Mode Niveaux :</strong> Les labels sont affichés à l'extérieur des sommets pour une meilleure lisibilité.
       </p>
     </div>
   </dialog>

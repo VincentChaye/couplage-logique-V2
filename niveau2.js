@@ -28,7 +28,7 @@
   ];
 
   function checkSolution() {
-    const edges = cy.edges().map(e => [e.source().id(), e.target().id()]);
+    const edges = cy.edges().not('.potential').map(e => [e.source().id(), e.target().id()]);
     const correct = solutionEdges.every(sol =>
       edges.some(e =>
         (e[0] === sol[0] && e[1] === sol[1]) ||
@@ -36,7 +36,7 @@
       )
     );
     if (correct && edges.length === solutionEdges.length) {
-      announceWin("Bravo ! Tu as réussi le niveau X 🎉");
+      announceWin("Bravo ! Tu as réussi le niveau 2 🎉");
     }
   }
 
@@ -52,13 +52,13 @@
     // Partie 1 (chiens) — ordre haut→bas via data.order
     // Partie 2 (niches) — ordre haut→bas
     cy.add([
-      { data:{ id:"chien_noir",   label:"Chien noir",   part:1, order:1 } },
-      { data:{ id:"chien_marron", label:"Chien marron", part:1, order:2 } },
-      { data:{ id:"chien_blanc",  label:"Chien blanc",  part:1, order:3 } },
+      { data:{ id:"chien_noir",   label:"Chien noir",   part:1, order:1 }, classes: 'level-node' },
+      { data:{ id:"chien_marron", label:"Chien marron", part:1, order:2 }, classes: 'level-node' },
+      { data:{ id:"chien_blanc",  label:"Chien blanc",  part:1, order:3 }, classes: 'level-node' },
 
-      { data:{ id:"niche_sans_gamelle", label:"Niche sans gamelle", part:2, order:2 } },
-      { data:{ id:"niche_jaune",        label:"Niche jaune",        part:2, order:1 } },
-      { data:{ id:"niche_blanche",      label:"Niche blanche",      part:2, order:3 } },
+      { data:{ id:"niche_sans_gamelle", label:"Niche sans gamelle", part:2, order:2 }, classes: 'level-node' },
+      { data:{ id:"niche_jaune",        label:"Niche jaune",        part:2, order:1 }, classes: 'level-node' },
+      { data:{ id:"niche_blanche",      label:"Niche blanche",      part:2, order:3 }, classes: 'level-node' },
     ]);
 
     // Layout colonnes par partie (même rendu que “Relancer le layout”)

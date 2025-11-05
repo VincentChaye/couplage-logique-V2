@@ -26,7 +26,7 @@
   ];
 
   function checkSolution() {
-    const edges = cy.edges().map(e => [e.source().id(), e.target().id()]);
+    const edges = cy.edges().not('.potential').map(e => [e.source().id(), e.target().id()]);
     const ok = solutionEdges.every(sol =>
       edges.some(e =>
         (e[0] === sol[0] && e[1] === sol[1]) ||
@@ -47,13 +47,13 @@
     // Reset + nœuds (deux parties, ordre haut→bas via data.order)
     cy.elements().remove();
     cy.add([
-      { data: { id: "riri",    label: "Riri",      part: 1, order: 1 } },
-      { data: { id: "fifi",    label: "Fifi",      part: 1, order: 2 } },
-      { data: { id: "loulou",  label: "Loulou",    part: 1, order: 3 } },
+      { data: { id: "riri",    label: "Riri",      part: 1, order: 1 }, classes: 'level-node' },
+      { data: { id: "fifi",    label: "Fifi",      part: 1, order: 2 }, classes: 'level-node' },
+      { data: { id: "loulou",  label: "Loulou",    part: 1, order: 3 }, classes: 'level-node' },
 
-      { data: { id: "chat",     label: "Chat",      part: 2, order: 1 } },
-      { data: { id: "hamster",  label: "Hamster",   part: 2, order: 2 } },
-      { data: { id: "peroquet", label: "Perroquet", part: 2, order: 3 } },
+      { data: { id: "chat",     label: "Chat",      part: 2, order: 1 }, classes: 'level-node' },
+      { data: { id: "hamster",  label: "Hamster",   part: 2, order: 2 }, classes: 'level-node' },
+      { data: { id: "peroquet", label: "Perroquet", part: 2, order: 3 }, classes: 'level-node' },
     ]);
 
     applyColumnsByPart();

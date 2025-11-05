@@ -43,7 +43,7 @@
   }
 
   function checkSolution(){
-    const edges = cy.edges().map(e => [e.source().id(), e.target().id()]);
+    const edges = cy.edges().not('.potential').map(e => [e.source().id(), e.target().id()]);
     const okPM = SOL_PM.every(([a,b]) => hasUndirectedEdge(a,b,edges));
     const okMC = SOL_MC.every(([a,b]) => hasUndirectedEdge(a,b,edges));
     const okCP = SOL_CP.every(([a,b]) => hasUndirectedEdge(a,b,edges));
@@ -62,19 +62,19 @@
 
     // Partie 1 : Personnes (ordre)
     cy.add([
-      { data:{ id:"andre",   label:"André",   part:1, order:1 } },
-      { data:{ id:"bernard", label:"Bernard", part:1, order:2 } },
-      { data:{ id:"claude",  label:"Claude",  part:1, order:3 } },
+      { data:{ id:"andre",   label:"André",   part:1, order:1 }, classes: 'level-node' },
+      { data:{ id:"bernard", label:"Bernard", part:1, order:2 }, classes: 'level-node' },
+      { data:{ id:"claude",  label:"Claude",  part:1, order:3 }, classes: 'level-node' },
 
       // Partie 2 : Casques (ordre)
-      { data:{ id:"casque_andre",   label:"Casque André",   part:2, order:1 } },
-      { data:{ id:"casque_bernard", label:"Casque Bernard", part:2, order:2 } },
-      { data:{ id:"casque_claude",  label:"Casque Claude",  part:2, order:3 } },
+      { data:{ id:"casque_andre",   label:"Casque André",   part:2, order:1 }, classes: 'level-node' },
+      { data:{ id:"casque_bernard", label:"Casque Bernard", part:2, order:2 }, classes: 'level-node' },
+      { data:{ id:"casque_claude",  label:"Casque Claude",  part:2, order:3 }, classes: 'level-node' },
 
       // Partie 3 : Motos (ordre)
-      { data:{ id:"moto_andre",   label:"Moto André",   part:3, order:1 } },
-      { data:{ id:"moto_bernard", label:"Moto Bernard", part:3, order:2 } },
-      { data:{ id:"moto_claude",  label:"Moto Claude",  part:3, order:3 } },
+      { data:{ id:"moto_andre",   label:"Moto André",   part:3, order:1 }, classes: 'level-node' },
+      { data:{ id:"moto_bernard", label:"Moto Bernard", part:3, order:2 }, classes: 'level-node' },
+      { data:{ id:"moto_claude",  label:"Moto Claude",  part:3, order:3 }, classes: 'level-node' },
     ]);
 
     // Layout & interactions

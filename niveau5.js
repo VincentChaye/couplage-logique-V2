@@ -28,7 +28,7 @@
   ];
 
   function checkSolution(){
-    const edges = cy.edges().map(e => [e.source().id(), e.target().id()]);
+    const edges = cy.edges().not('.potential').map(e => [e.source().id(), e.target().id()]);
     const ok = SOL_EDGES.every(sol =>
       edges.some(e =>
         (e[0] === sol[0] && e[1] === sol[1]) ||
@@ -36,7 +36,7 @@
       )
     );
     if (ok && edges.length === SOL_EDGES.length){
-      announceWin("Bravo ! Tu as réussi le niveau X 🎉");
+      announceWin("Bravo ! Tu as réussi le niveau 5 🎉");
     }
   }
 
@@ -49,18 +49,18 @@
 
     // Partie 1 (ordre : Aborigène, Chinoise, Inuit, Péruvien, Touareg)
     cy.add([
-      { data:{ id:"aborigene", label:"Aborigène", part:1, order:1 } },
-      { data:{ id:"chinoise",  label:"Chinoise",  part:1, order:2 } },
-      { data:{ id:"inuit",     label:"Inuit",     part:1, order:3 } },
-      { data:{ id:"peruvien",  label:"Péruvien",  part:1, order:4 } },
-      { data:{ id:"touareg",   label:"Touareg",   part:1, order:5 } },
+      { data:{ id:"aborigene", label:"Aborigène", part:1, order:1 }, classes: 'level-node' },
+      { data:{ id:"chinoise",  label:"Chinoise",  part:1, order:2 }, classes: 'level-node' },
+      { data:{ id:"inuit",     label:"Inuit",     part:1, order:3 }, classes: 'level-node' },
+      { data:{ id:"peruvien",  label:"Péruvien",  part:1, order:4 }, classes: 'level-node' },
+      { data:{ id:"touareg",   label:"Touareg",   part:1, order:5 }, classes: 'level-node' },
 
       // Partie 2 (ordre : Kangourou, Panda, Ours Blanc, Lama, Chameau)
-      { data:{ id:"kangourou",  label:"Kangourou",  part:2, order:1 } },
-      { data:{ id:"panda",      label:"Panda",      part:2, order:2 } },
-      { data:{ id:"ours_blanc", label:"Ours Blanc", part:2, order:3 } },
-      { data:{ id:"lama",       label:"Lama",       part:2, order:4 } },
-      { data:{ id:"chameau",    label:"Chameau",    part:2, order:5 } },
+      { data:{ id:"kangourou",  label:"Kangourou",  part:2, order:1 }, classes: 'level-node' },
+      { data:{ id:"panda",      label:"Panda",      part:2, order:2 }, classes: 'level-node' },
+      { data:{ id:"ours_blanc", label:"Ours Blanc", part:2, order:3 }, classes: 'level-node' },
+      { data:{ id:"lama",       label:"Lama",       part:2, order:4 }, classes: 'level-node' },
+      { data:{ id:"chameau",    label:"Chameau",    part:2, order:5 }, classes: 'level-node' },
     ]);
 
     // Layout & interactions
