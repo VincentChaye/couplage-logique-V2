@@ -48,6 +48,7 @@ const kSel = document.getElementById('k');
 const nSel = document.getElementById('n');
 const levelSel = document.getElementById('level');
 const btnRandom = document.getElementById('btnRandom');
+const btnPotential = document.getElementById('btnPotential');
 const help = document.getElementById('help');
 
 /* ==== Zone 3 : titre & consignes (par défaut pour le mode personnalisé) ==== */
@@ -238,6 +239,60 @@ function setRandomButtonState() {
     ? 'Désactivé en mode Niveaux'
     : 'Ajouter des arêtes aléatoires (inter-parties seulement)';
 }
+
+/* === Bouton "Arêtes potentielles" : affiche toutes les arêtes possibles en gris === */
+function setPotentialButtonState() {
+  if (!btnPotential) return;
+  const isLevels = modeSel.value === 'levels';
+  btnPotential.disabled = !isLevels;
+  btnPotential.title = !isLevels
+    ? 'Disponible uniquement en mode Niveaux'
+    : 'Afficher toutes les arêtes possibles en gris';
+}
+
+function addAllPotentialEdges() {
+  // Récupère toutes les arêtes existantes
+  const existing = new Set();
+  cy.edges().forEach(e => {
+    const a = e.source().id(), b = e.target().id();
+    const key = a < b ? `${a}__${b}` : `${b}__${a}`;
+    existing.add(key);
+  });
+
+  // Groupe les nœuds par partie
+  const byPart = {};
+  cy.nodes().forEach(n => {
+    const p = n.data('part');
+    if (p == null) return;
+    (byPart[p] ||= []).push(n.id());
+  });
+
+  // Génère toutes les arêtes possibles entre différentes parties
+  const parts = Object.keys(byPart).map(Number).sort((a, b) => a - b);
+  const batch = [];
+  let edgeIndex = 0;
+
+  for (let i = 0; i < parts.length; i++) {
+    for (let j = i + 1; j < parts.length; j++) {
+      const A = byPart[parts[i]], B = byPart[parts[j]];
+      A.forEach(a => B.forEach(b => {
+        const key = a < b ? `${a}__${b}` : `${b}__${a}`;
+        if (!existing.has(key)) {
+          batch.push({
+            group: 'edges',
+            data: { id: `pot_${key}_${edgeIndex++}`, source: a, target: b },
+            classes: 'edge-grey'
+          });
+        }
+      }));
+    }
+  }
+
+  if (batch.length > 0) {
+    cy.add(batch);
+    refreshStats();
+  }
+}
 function addRandomEdges() {
   const existing = new Set();
   cy.edges().forEach(e => {
@@ -385,6 +440,7 @@ modeSel.addEventListener('change', () => {
     setConsignes(CONSIGNE_INIT);
   }
   setRandomButtonState();
+  setPotentialButtonState();
 });
 
 document.getElementById('btnBuild').addEventListener('click', () => {
@@ -406,6 +462,15 @@ if (btnRandom) {
       drawK(k, n);
     }
     addRandomEdges();
+  });
+}
+
+// Bouton "Arêtes potentielles" : actif uniquement en mode Niveaux
+if (btnPotential) {
+  btnPotential.addEventListener('click', () => {
+    if (modeSel.value !== 'levels') return;
+    if (cy.nodes().length === 0) return;
+    addAllPotentialEdges();
   });
 }
 
@@ -432,6 +497,7 @@ document.getElementById('closeHelp').addEventListener('click', () => help.close(
 /* ==== Démarrage ==== */
 drawLevel('niveau1');
 setRandomButtonState();
+setPotentialButtonState();
 
 
 /* ============================================================
