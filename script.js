@@ -470,7 +470,17 @@ if (btnPotential) {
   btnPotential.addEventListener('click', () => {
     if (modeSel.value !== 'levels') return;
     if (cy.nodes().length === 0) return;
-    addAllPotentialEdges();
+    
+    // Vérifie s'il y a des arêtes grises
+    const greyEdges = cy.edges('.edge-grey');
+    if (greyEdges.length > 0) {
+      // Si des arêtes grises existent, les supprimer
+      greyEdges.remove();
+      refreshStats();
+    } else {
+      // Sinon, les ajouter
+      addAllPotentialEdges();
+    }
   });
 }
 
