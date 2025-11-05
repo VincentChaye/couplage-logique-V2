@@ -97,6 +97,34 @@ header p{
   border: 2px solid var(--border);
 }
 
+/* ——— Arêtes colorées ——— */
+.edge-green {
+  line-color: #22c55e;
+  target-arrow-color: #22c55e;
+  width: 3px;
+}
+.edge-red {
+  line-color: #ef4444;
+  target-arrow-color: #ef4444;
+  width: 3px;
+}
+.edge-grey {
+  line-color: #9ca3af;
+  target-arrow-color: #9ca3af;
+  width: 3px;
+}
+
+/* Optionnel : survol/erreur */
+.error-edge {
+  line-color: #f59e0b !important;
+  target-arrow-color: #f59e0b !important;
+}
+
+/* ——— Bouton cyclique ——— */
+button.color-cycle { transition: background-color .2s, color .2s, border-color .2s; }
+button.color-green { background:#22c55e; color:#0b3517; border-color:#16a34a; }
+button.color-red   { background:#ef4444; color:#3b0a0a; border-color:#dc2626; }
+button.color-grey  { background:#9ca3af; color:#111827; border-color:#6b7280; }
 /* Zone 2 (panneau boutons) */
 #zone-2{
   background:var(--panel);
