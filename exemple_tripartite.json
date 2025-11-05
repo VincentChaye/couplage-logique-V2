@@ -1,0 +1,92 @@
+{
+  "version": "1.0",
+  "metadata": {
+    "name": "Exemple - Graphe tripartite",
+    "created": "2025-11-05T00:00:00.000Z",
+    "description": "Un graphe tripartite avec 3 parties de 2 nœuds chacune",
+    "nodes_count": 6,
+    "edges_count": 6
+  },
+  "nodes": [
+    {
+      "id": "p1_n1",
+      "label": "A1",
+      "part": 1,
+      "order": 1,
+      "position": { "x": 80, "y": 100 }
+    },
+    {
+      "id": "p1_n2",
+      "label": "A2",
+      "part": 1,
+      "order": 2,
+      "position": { "x": 80, "y": 180 }
+    },
+    {
+      "id": "p2_n1",
+      "label": "B1",
+      "part": 2,
+      "order": 1,
+      "position": { "x": 220, "y": 100 }
+    },
+    {
+      "id": "p2_n2",
+      "label": "B2",
+      "part": 2,
+      "order": 2,
+      "position": { "x": 220, "y": 180 }
+    },
+    {
+      "id": "p3_n1",
+      "label": "C1",
+      "part": 3,
+      "order": 1,
+      "position": { "x": 360, "y": 100 }
+    },
+    {
+      "id": "p3_n2",
+      "label": "C2",
+      "part": 3,
+      "order": 2,
+      "position": { "x": 360, "y": 180 }
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "source": "p1_n1",
+      "target": "p2_n1",
+      "classes": ""
+    },
+    {
+      "id": "e2",
+      "source": "p1_n2",
+      "target": "p2_n2",
+      "classes": ""
+    },
+    {
+      "id": "e3",
+      "source": "p2_n1",
+      "target": "p3_n1",
+      "classes": ""
+    },
+    {
+      "id": "e4",
+      "source": "p2_n2",
+      "target": "p3_n2",
+      "classes": ""
+    },
+    {
+      "id": "e5",
+      "source": "p1_n1",
+      "target": "p3_n2",
+      "classes": ""
+    },
+    {
+      "id": "e6",
+      "source": "p1_n2",
+      "target": "p3_n1",
+      "classes": ""
+    }
+  ]
+}
