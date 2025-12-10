@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="fr">
-
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -8,7 +7,6 @@
   <script src="https://unpkg.com/cytoscape@3.26.0/dist/cytoscape.min.js"></script>
   <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
 
   <header id="tn-header">
@@ -66,9 +64,9 @@
             <button class="secondary" id="btnImportJSON" style="flex:1">Importer</button>
           </div>
           <input type="file" id="fileInput" accept=".json" style="display:none">
-
+          
           <div class="row" style="margin-top:10px">
-            <button class="ghost" id="btnClear" style="width:100%">Tout effacer</button>
+             <button class="ghost" id="btnClear" style="width:100%">Tout effacer</button>
           </div>
         </div>
 
@@ -82,11 +80,9 @@
           <h3>Choix du modèle</h3>
           <select id="template" style="width:100%; margin-bottom:8px">
             <option value="">-- Sélectionner --</option>
-            <option value="bipartite_3_3">Bipartite K₂,₃</option>
-            <option value="tripartite_2_2_2">Tripartite 2-2-2</option>
-            <option value="star_5">Étoile à 5 branches</option>
-            <option value="cycle_6">Cycle de 6 nœuds</option>
-            <option value="complete_4">Complet K₄</option>
+            <option value="k3_3">K3,3 (Bipartite complet)</option>
+            <option value="k3_3_3">K3,3,3 (Tripartite complet)</option>
+            <option value="k3_3_3_3">K3,3,3,3 (Quadripartite complet)</option>
           </select>
           <button class="primary" id="btnLoadTemplate" style="width:100%">Charger le modèle</button>
         </div>
@@ -95,18 +91,18 @@
       <div class="card">
         <h3>Outils</h3>
         <p id="stats" class="hint" style="margin-bottom:10px; text-align:center">—</p>
-
+        
         <div class="row" style="margin-bottom:8px">
-          <button id="btnEdgeColor" class="color-cycle color-grey" style="width:100%">Couleur : Gris</button>
+             <button id="btnEdgeColor" class="color-cycle color-grey" style="width:100%">Couleur : Gris</button>
         </div>
-
+        
         <button class="ghost" id="btnPotential" style="width:100%; margin-bottom:8px">Voir arêtes possibles</button>
-
+        
         <div class="row">
           <button id="btnLayout" class="ghost" style="flex:1">Réorganiser</button>
           <button id="btnFit" class="ghost" style="flex:1">Centrer</button>
         </div>
-
+        
         <div class="row" style="margin-top:15px">
           <button id="btnDeleteNode" class="danger" style="width:100%">Supprimer la sélection</button>
         </div>
@@ -118,20 +114,52 @@
   <dialog id="help">
     <div class="modal-header">
       <strong>Guide d'utilisation</strong>
-      <button class="info-btn" id="closeHelp" aria-label="Fermer"
-        style="background:transparent; border:1px solid white;">×</button>
+      <button class="info-btn" id="closeHelp" aria-label="Fermer" style="background:transparent; border:1px solid white;">×</button>
     </div>
     <div class="modal-body">
-      <h3>🎨 Modes disponibles</h3>
-      <p><strong>Éditeur :</strong> Créez vos graphes. <strong>Niveaux :</strong> Résolvez des énigmes.
-        <strong>Templates :</strong> Modèles prêts à l'emploi.</p>
-      <h3>✏️ Actions</h3>
-      <p>
-        <strong>Créer arête :</strong> Cliquez sur deux nœuds.<br>
-        <strong>Supprimer :</strong> Double-clic sur une arête ou bouton "Supprimer" pour un nœud.<br>
-        <strong>Couleur :</strong> Utilisez le bouton "Couleur" pour changer la couleur des arêtes sélectionnées ou
-        futures.
-      </p>
+      <h3 style="margin-top:0">Bienvenue sur l'Atelier Graphes</h3>
+      <p>Cette application vous permet de manipuler des graphes aux couleurs de <strong>Terra Numerica</strong>.</p>
+
+      <h3>🛠️ Fonctionnalités Clés</h3>
+      
+      <p><strong>🟢🔴 Gestion des Couleurs</strong><br>
+      Utilisez le bouton "Couleur" (à droite) pour :
+      <ul>
+        <li>Choisir la couleur des <em>prochaines</em> arêtes que vous tracerez.</li>
+        <li>Changer la couleur des arêtes déjà <em>sélectionnées</em> (elles se désélectionnent ensuite pour afficher le résultat).</li>
+      </ul>
+      <em>Astuce : Utilisez le Vert pour "sûr" et le Rouge pour "impossible".</em></p>
+
+      <p><strong>Modèles Géométriques</strong><br>
+      Les templates complets s'organisent automatiquement :
+      <ul>
+        <li><strong>K3,3</strong> (Bipartite) → Colonnes</li>
+        <li><strong>K3,3,3</strong> (Tripartite) → Triangle</li>
+        <li><strong>K3,3,3,3</strong> (Quadripartite) → Carré</li>
+      </ul>
+      Cliquez sur <strong>"Réorganiser"</strong> pour retrouver ces formes parfaites.</p>
+
+      <h3>Comment jouer ?</h3>
+      
+      <h4>Mode Éditeur</h4>
+      <ul>
+        <li><strong>Ajouter :</strong> Remplissez Partie/Label puis "Ajouter" (ou Entrée).</li>
+        <li><strong>Lier :</strong> Cliquez sur un premier nœud, puis sur un second.</li>
+        <li><strong>Supprimer :</strong> Double-clic sur une arête, ou sélection + bouton "Supprimer".</li>
+      </ul>
+
+      <h4>Mode Niveaux</h4>
+      <ol>
+        <li>Choisissez une énigme (ex: Motos).</li>
+        <li>Lisez les indices en haut.</li>
+        <li>Utilisez le bouton <strong>"Voir arêtes possibles"</strong> pour afficher en gris ce qu'il reste à tester.</li>
+      </ol>
+
+      <h3>Sauvegarde</h3>
+      <p>Utilisez les boutons <strong>Exporter / Importer JSON</strong> pour sauvegarder votre progression.</p>
+      
+      <hr style="margin: 20px 0; border: 0; border-top: 1px solid #eee;">
+      <p style="text-align: center; font-style: italic; color: #666; font-size: 12px;">Application développée pour Terra Numerica.</p>
     </div>
   </dialog>
 
@@ -144,5 +172,4 @@
   <script src="script.js"></script>
 
 </body>
-
 </html>
