@@ -1,148 +1,133 @@
-# Éditeur de Graphes k-partites
+Voici le contenu complet du fichier **`README.md`** prêt à être téléchargé ou copié.
 
-Application web interactive pour créer, éditer et explorer des graphes k-partites avec Cytoscape.js.
 
-## 🎨 Fonctionnalités principales
+# 🌍 Atelier Graphes - Terra Numerica
 
-### 3 Modes d'utilisation
+![Version](https://img.shields.io/badge/version-2.0-blue.svg)
+![License](https://img.shields.io/badge/license-MIT-green.svg)
+![Terra Numerica](https://img.shields.io/badge/Terra-Numerica-orange)
 
-#### 1. **Éditeur de graphe** (Mode par défaut)
-- Créez vos propres graphes de A à Z
-- Ajoutez des nœuds en spécifiant la partie et le label
-- Créez des arêtes en cliquant sur deux nœuds
-- Supprimez des nœuds et arêtes facilement
-- Positionnement visuel avec drag & drop
+Une application web interactive et pédagogique dédiée à la découverte des graphes et à la résolution d'énigmes logiques (problèmes de couplage, k-partites).
 
-#### 2. **Mode Niveaux**
-- 6 niveaux prédéfinis avec énigmes éducatives
-- Vérification automatique des solutions
-- Bandeau de réussite non-bloquant
-- Arêtes potentielles affichables en gris
+Développée aux couleurs de **Terra Numerica**, cette application permet de manipuler des graphes, de tester des hypothèses visuellement et de créer ses propres exercices.
 
-#### 3. **Mode Templates**
-- Graphes classiques prédéfinis :
-  - Bipartite K₂,₃ (2 parties, 3 nœuds)
-  - Tripartite (3 parties, 2 nœuds chacune)
-  - Étoile à 5 branches
-  - Cycle de 6 nœuds
-  - Graphe complet K₄
+---
 
-## 💾 Import / Export JSON
+## ✨ Fonctionnalités Principales
 
-### Format JSON
-```json
-{
-  "version": "1.0",
-  "metadata": {
-    "name": "Graphe personnalisé",
-    "created": "2025-11-05T...",
-    "nodes_count": 5,
-    "edges_count": 4
-  },
-  "nodes": [
-    {
-      "id": "node1",
-      "label": "A",
-      "part": 1,
-      "order": 1,
-      "position": { "x": 100, "y": 100 }
-    }
-  ],
-  "edges": [
-    {
-      "id": "e1",
-      "source": "node1",
-      "target": "node2",
-      "classes": ""
-    }
-  ]
-}
-```
+### 🎮 3 Modes d'Utilisation
+1.  **Mode Éditeur** : Un espace libre pour créer des graphes de A à Z. Ajoutez des nœuds, créez des liens, organisez les parties.
+2.  **Mode Niveaux** : 6 énigmes logiques progressives à résoudre (Neveux, Chiens, Interrupteurs, Gaulois, Course, Motos).
+3.  **Mode Templates** : Des modèles de graphes complets avec des dispositions géométriques automatiques :
+    * **K3,3** (Bipartite) → Disposition en Colonnes
+    * **K3,3,3** (Tripartite) → Disposition en Triangle
+    * **K3,3,3,3** (Quadripartite) → Disposition en Carré
 
-### Exporter un graphe
-1. Créez votre graphe dans l'éditeur
-2. Cliquez sur **"📥 Exporter JSON"**
-3. Le fichier `.json` est téléchargé automatiquement
+### 🛠️ Outils Avancés
+* **Gestion des Couleurs (Hypothèses)** : 
+    * Un bouton intelligent **Gris / Vert / Rouge** pour marquer les arêtes.
+    * Permet de distinguer les liens "sûrs" (Vert) des "impossibles" (Rouge).
+    * Fonctionne à la création d'arête ou sur une sélection existante.
+* **Vérification Souple** : Le système valide la victoire si la solution est correcte (arêtes vertes), même si des "brouillons" (arêtes rouges ou grises) sont encore présents sur le graphe.
+* **Arêtes Potentielles** : Affiche en gris toutes les connexions possibles pour aider à la réflexion.
+* **Réorganisation Intelligente** : Le bouton "Réorganiser" adapte la forme du graphe (Triangle, Carré, Colonnes) selon le contexte.
 
-### Importer un graphe
-1. Cliquez sur **"📤 Importer JSON"**
-2. Sélectionnez un fichier `.json` valide
-3. Le graphe se charge instantanément
+### 🎨 Interface & Design
+* **Identité Terra Numerica** : Charte graphique officielle (Bleu institutionnel / Orange).
+* **Imagerie** : Les nœuds affichent des illustrations (images PNG) pour rendre les énigmes plus concrètes.
+* **Responsive** : S'adapte aux différentes tailles d'écran.
 
-## ✏️ Utilisation
+---
 
-### Créer des nœuds
-1. Spécifiez le numéro de **Partie** (1-10)
-2. Entrez un **Label** (nom du nœud)
-3. Cliquez sur **"+ Ajouter nœud"** ou appuyez sur Entrée
+## 📂 Structure du Projet
 
-### Créer des arêtes
-1. Cliquez sur un premier nœud (il sera surligné en bleu)
-2. Cliquez sur un second nœud
-3. Une arête est créée entre les deux
+Pour que l'application fonctionne correctement (notamment les images), votre dossier doit être organisé comme suit :
 
-### Supprimer des éléments
-- **Arête** : Double-cliquez sur l'arête
-- **Nœud** : Sélectionnez-le puis cliquez sur "Supprimer nœud"
 
-### Outils rapides
-- **Arêtes aléatoires** : Génère des connexions aléatoires entre différentes parties
-- **Arêtes potentielles** (Niveaux) : Affiche toutes les arêtes possibles en gris
-- **Relancer layout** : Réorganise le graphe en colonnes par partie
-- **Adapter vue** : Recentre et ajuste le zoom
-- **Réinitialiser** : Supprime tous les éléments
+/racine-du-projet/
+│
+├── index.html              # Structure de la page (Header TN, Contrôles, Graphe)
+├── style.css               # Design (Charte Terra Numerica)
+├── script.js               # Moteur logique (Cytoscape, événements, vérification)
+│
+├── niveau1.js à niveau6.js # Fichiers de configuration des énigmes
+│
+└── public/                 # Dossier des ressources statiques
+    ├── terra_numerica_logo.png
+    │
+    └── images/             # Images des nœuds
+        ├── riri.png
+        ├── chat.png
+        ├── motoAndre.png
+        └── ...
 
-## 🛠️ Technologies
 
-- **Cytoscape.js** : Librairie de visualisation de graphes
-- **HTML5 / CSS3** : Interface moderne et responsive
-- **JavaScript** (Vanilla) : Logique applicative
+-----
 
-## 📦 Structure des fichiers
+## 🚀 Installation & Lancement
 
-```
-/workspace/
-├── index.html          # Page principale
-├── style.css           # Styles CSS
-├── script.js           # Logique principale + éditeur
-├── niveau1.js          # Niveau 1 (Neveux et animaux)
-├── niveau2.js          # Niveau 2 (Chiens et niches)
-├── niveau3.js          # Niveau 3 (Interrupteurs)
-├── niveau4.js          # Niveau 4 (Gaulois)
-├── niveau5.js          # Niveau 5 (Course animaux)
-├── niveau6.js          # Niveau 6 (Motos et casques)
-└── README.md           # Documentation
-```
+### Méthode simple
 
-## 🚀 Démarrage
+Ouvrez simplement le fichier `index.html` dans votre navigateur web (Chrome, Firefox, Edge).
 
-1. Ouvrez `index.html` dans un navigateur moderne
-2. L'éditeur se lance automatiquement
-3. Commencez à créer votre graphe !
+### Méthode recommandée (Serveur local)
 
-## 📝 Exemples d'utilisation
+Pour éviter certains blocages de sécurité liés au chargement des images ou des fichiers JSON (CORS) sur certains navigateurs, il est préférable d'utiliser un petit serveur local.
 
-### Créer un graphe bipartite simple
-1. Ajoutez 3 nœuds dans la partie 1 (A, B, C)
-2. Ajoutez 3 nœuds dans la partie 2 (1, 2, 3)
-3. Reliez les nœuds en cliquant
-4. Exportez en JSON pour réutiliser
+Avec Python :
 
-### Charger un template et le modifier
-1. Passez en mode "Templates"
-2. Sélectionnez "Étoile à 5 branches"
-3. Cliquez sur "Charger template"
-4. Ajoutez/supprimez des nœuds selon vos besoins
-5. Exportez le résultat
 
-## 🎓 Utilisation pédagogique
+# Dans le dossier du projet
+python3 -m http.server
+# Puis ouvrez http://localhost:8000
 
-Les niveaux sont conçus pour enseigner :
-- La logique déductive
-- Les graphes bipartites et multipartites
-- La résolution de problèmes par élimination
-- La représentation visuelle de relations
 
-## 📄 Licence
+Avec VS Code :
+Utilisez l'extension "Live Server".
 
-Projet éducatif open source.
+-----
+
+## 📖 Guide d'Utilisation
+
+### Création (Éditeur)
+
+  * **Ajouter un nœud** : Remplissez "Partie" et "Label" puis appuyez sur **Entrée**.
+  * **Lier deux nœuds** : Cliquez sur le premier (il devient bleu), puis sur le second.
+  * **Supprimer** : Sélectionnez un élément et appuyez sur le bouton "Supprimer" (ou double-cliquez sur une arête).
+
+### Résolution (Niveaux)
+
+  * Lisez les indices dans le bandeau supérieur.
+  * Utilisez le bouton **Couleur** pour tester vos hypothèses :
+      * *Vert* : "Je suis sûr que c'est ça".
+      * *Rouge* : "Impossible que ce soit ça".
+  * Si vous êtes bloqué, cliquez sur "Voir arêtes possibles".
+
+### Import / Export
+
+  * Sauvegardez vos créations au format `.json` pour les partager ou les reprendre plus tard via les boutons **Exporter** et **Importer**.
+
+-----
+
+## 🛠️ Personnalisation
+
+### Ajouter des images
+
+Déposez vos fichiers `.png` dans `public/images/`.
+Si le nom du fichier ne correspond pas à l'ID du nœud, ajoutez une entrée dans la fonction `getNodeImage()` du fichier `script.js`.
+
+### Modifier un niveau
+
+Les niveaux sont définis dans les fichiers `niveauX.js`. Vous pouvez modifier les consignes, les nœuds ou la solution attendue (`SOL_EDGES`) directement dans ces fichiers.
+
+-----
+
+## 📄 Crédits
+
+**Développement & Conception** : Vincent Chaye  
+**Cadre** : Projet Terra Numerica  
+**Moteur Graphique** : [Cytoscape.js](https://js.cytoscape.org/)
+
+-----
+
+*Projet éducatif open-source. N'hésitez pas à contribuer \!*
