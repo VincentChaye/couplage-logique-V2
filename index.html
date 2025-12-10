@@ -1,110 +1,116 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Graphe k-partite – Cytoscape (Modes & Niveaux)</title>
+  <title>Terra Numerica - Atelier Graphes</title>
   <script src="https://unpkg.com/cytoscape@3.26.0/dist/cytoscape.min.js"></script>
   <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
+
+  <header id="tn-header">
+    <div class="tn-container">
+      <div class="tn-logo">
+        <img src="public/terra_numerica_logo.png" alt="Terra Numerica">
+      </div>
+      <nav class="tn-nav">
+        <a href="#" class="active">L'Atelier Graphes</a>
+        <a href="https://terra-numerica.org/" target="_blank">Retour au site</a>
+      </nav>
+    </div>
+  </header>
+
   <main class="grid">
-    <!-- Zone 3 : Consignes -->
-    <header id="zone-3">
+    <section id="zone-3">
       <div>
         <h1>Consignes</h1>
         <p>
-          Choisis un <strong>mode</strong> : <em>Personnalisé</em> (tu règles k & n) ou <em>Niveaux</em> (préconfigurés).<br>
-          « Générer » crée un <em>k-partite</em> (complet en perso).
+          Choisis un <strong>mode</strong> : <em>Personnalisé</em> ou <em>Niveaux</em>.<br>
+          Créez, modifiez et explorez les graphes k-partites.
         </p>
       </div>
       <div id="zone-4">
         <button class="info-btn" id="openHelp" aria-label="Informations">i</button>
       </div>
-    </header>
+    </section>
 
-    <!-- Zone 1 : Graphe Cytoscape -->
     <section id="zone-1" aria-label="Zone graphe">
       <div id="cy" role="application" aria-label="Graphe Cytoscape"></div>
     </section>
 
-    <!-- Zone 2 : Panneau de boutons / contrôles -->
     <aside id="zone-2" aria-label="Panneau de contrôle">
       <div class="card">
-        <!-- Choix du mode -->
+        <h3>Mode</h3>
         <div class="row">
-          <label for="mode">Mode</label>
-          <select id="mode">
+          <select id="mode" style="width:100%">
             <option value="editor" selected>Éditeur de graphe</option>
             <option value="levels">Niveaux</option>
             <option value="templates">Templates</option>
           </select>
         </div>
 
-        <!-- Contrôles Éditeur -->
         <div id="editor-controls" class="editor-panel">
-          <h3>Création de nœuds</h3>
+          <h3>Création</h3>
           <div class="row gap-sm">
-            <label for="nodePart">Partie</label>
-            <input type="number" id="nodePart" min="1" max="10" value="1" style="width:60px">
-            <label for="nodeLabel">Label</label>
+            <input type="number" id="nodePart" min="1" max="10" value="1" style="width:50px" title="Numéro de partie">
             <input type="text" id="nodeLabel" placeholder="Nom du nœud" style="flex:1">
           </div>
-          <button class="primary" id="btnAddNode" style="width:100%; margin-top:8px">+ Ajouter nœud</button>
+          <button class="primary" id="btnAddNode" style="width:100%; margin-top:8px">Ajouter un nœud</button>
 
-          <h3 style="margin-top:16px">Actions rapides</h3>
+          <h3>Fichier</h3>
           <div class="row" style="gap:6px">
-            <button class="ghost" id="btnRandom">Arêtes aléatoires</button>
-            <button class="ghost" id="btnClear">Réinitialiser</button>
-          </div>
-          
-          <h3 style="margin-top:16px">Import / Export</h3>
-          <div class="row" style="gap:6px">
-            <button class="secondary" id="btnExportJSON">📥 Exporter JSON</button>
-            <button class="secondary" id="btnImportJSON">📤 Importer JSON</button>
+            <button class="secondary" id="btnExportJSON" style="flex:1">Exporter</button>
+            <button class="secondary" id="btnImportJSON" style="flex:1">Importer</button>
           </div>
           <input type="file" id="fileInput" accept=".json" style="display:none">
+
+          <div class="row" style="margin-top:10px">
+            <button class="ghost" id="btnClear" style="width:100%">Tout effacer</button>
+          </div>
         </div>
 
-        <!-- Contrôles niveaux -->
-        <div id="level-controls" class="row hidden gap-sm" style="margin-top:10px">
-          <label for="level">Niveau</label>
-          <select id="level" aria-label="Choisir un niveau prédéfini">
-            <!-- Options injectées par script.js -->
-          </select>
-          <button class="primary" id="btnLoadLevel" style="margin-top:8px">Charger</button>
+        <div id="level-controls" class="hidden" style="margin-top:10px">
+          <h3>Choix du niveau</h3>
+          <select id="level" style="width:100%; margin-bottom:8px"></select>
+          <button class="primary" id="btnLoadLevel" style="width:100%">Charger le niveau</button>
         </div>
 
-        <!-- Contrôles templates -->
         <div id="template-controls" class="hidden" style="margin-top:10px">
-          <label for="template">Template</label>
-          <select id="template">
-            <option value="">-- Choisir un template --</option>
-            <option value="bipartite_3_3">Bipartite K₂,₃ (2 parties, 3 nœuds)</option>
-            <option value="tripartite_2_2_2">Tripartite (3 parties, 2 nœuds)</option>
+          <h3>Choix du modèle</h3>
+          <select id="template" style="width:100%; margin-bottom:8px">
+            <option value="">-- Sélectionner --</option>
+            <option value="bipartite_3_3">Bipartite K₂,₃</option>
+            <option value="tripartite_2_2_2">Tripartite 2-2-2</option>
             <option value="star_5">Étoile à 5 branches</option>
             <option value="cycle_6">Cycle de 6 nœuds</option>
             <option value="complete_4">Complet K₄</option>
           </select>
-          <button class="primary" id="btnLoadTemplate" style="width:100%; margin-top:8px">Charger template</button>
+          <button class="primary" id="btnLoadTemplate" style="width:100%">Charger le modèle</button>
         </div>
       </div>
 
       <div class="card">
-        <h3 style="margin:0 0 6px 0">Infos graphe</h3>
-        <p id="stats" class="hint">—</p>
-        <button class="ghost" id="btnPotential" style="width:100%; margin-top:8px">Arêtes potentielles</button>
-      </div>
+        <h3>Outils</h3>
+        <p id="stats" class="hint" style="margin-bottom:10px; text-align:center">—</p>
 
-      <div class="card">
-        <h3 style="margin:0 0 6px 0">Opérations</h3>
+        <div class="row" style="margin-bottom:8px">
+          <button id="btnEdgeColor" class="color-cycle color-grey" style="width:100%">Couleur : Gris</button>
+        </div>
+
+        <button class="ghost" id="btnPotential" style="width:100%; margin-bottom:8px">Voir arêtes possibles</button>
+
         <div class="row">
-          <button id="btnLayout" class="ghost">Relancer layout</button>
-          <button id="btnFit" class="ghost">Adapter vue</button>
+          <button id="btnLayout" class="ghost" style="flex:1">Réorganiser</button>
+          <button id="btnFit" class="ghost" style="flex:1">Centrer</button>
         </div>
-        <div class="row" style="margin-top:8px">
-          <button id="btnDeleteNode" class="danger">Supprimer nœud</button>
+
+        <div class="row" style="margin-top:15px">
+          <button id="btnDeleteNode" class="danger" style="width:100%">Supprimer la sélection</button>
         </div>
+        <button id="btnRandom" style="display:none"></button>
       </div>
     </aside>
   </main>
@@ -112,53 +118,31 @@
   <dialog id="help">
     <div class="modal-header">
       <strong>Guide d'utilisation</strong>
-      <button class="info-btn" id="closeHelp" aria-label="Fermer">×</button>
+      <button class="info-btn" id="closeHelp" aria-label="Fermer"
+        style="background:transparent; border:1px solid white;">×</button>
     </div>
     <div class="modal-body">
-      <h3 style="margin-top:0">🎨 Modes disponibles</h3>
+      <h3>🎨 Modes disponibles</h3>
+      <p><strong>Éditeur :</strong> Créez vos graphes. <strong>Niveaux :</strong> Résolvez des énigmes.
+        <strong>Templates :</strong> Modèles prêts à l'emploi.</p>
+      <h3>✏️ Actions</h3>
       <p>
-        <strong>Éditeur de graphe :</strong> Créez vos propres graphes de A à Z.<br>
-        <strong>Niveaux :</strong> Résolvez des énigmes prédéfinies.<br>
-        <strong>Templates :</strong> Commencez avec des graphes classiques (étoile, cycle, etc.).
-      </p>
-
-      <h3>✏️ Créer et modifier</h3>
-      <p>
-        <strong>Ajouter un nœud :</strong> Remplissez "Partie" et "Label" puis cliquez sur "+ Ajouter nœud".<br>
-        <strong>Ajouter une arête :</strong> Cliquez sur deux nœuds successivement.<br>
-        <strong>Supprimer une arête :</strong> Double-cliquez sur une arête.<br>
-        <strong>Supprimer un nœud :</strong> Sélectionnez-le puis cliquez sur "Supprimer nœud".<br>
-        <strong>Déplacer les nœuds :</strong> Cliquez-glissez pour repositionner.<br>
-        <strong>Sélection multiple :</strong> Maintenez <kbd>Shift</kbd> (Majuscule).
-      </p>
-
-      <h3>💾 Import / Export JSON</h3>
-      <p>
-        <strong>Exporter :</strong> Sauvegardez votre graphe au format JSON pour le réutiliser plus tard.<br>
-        <strong>Importer :</strong> Chargez un graphe depuis un fichier JSON existant.<br>
-        Format : positions des nœuds, arêtes, parties, et métadonnées.
-      </p>
-
-      <h3>🛠️ Outils rapides</h3>
-      <p>
-        <strong>Arêtes aléatoires :</strong> Génère des arêtes entre différentes parties.<br>
-        <strong>Arêtes potentielles (Niveaux) :</strong> Affiche toutes les connexions possibles en gris.<br>
-        <strong>Relancer layout :</strong> Réorganise automatiquement le graphe.<br>
-        <strong>Adapter vue :</strong> Recentre et ajuste le zoom.<br>
-        <strong>Réinitialiser :</strong> Supprime tous les nœuds et arêtes.
+        <strong>Créer arête :</strong> Cliquez sur deux nœuds.<br>
+        <strong>Supprimer :</strong> Double-clic sur une arête ou bouton "Supprimer" pour un nœud.<br>
+        <strong>Couleur :</strong> Utilisez le bouton "Couleur" pour changer la couleur des arêtes sélectionnées ou
+        futures.
       </p>
     </div>
   </dialog>
 
-
-<script src="niveau1.js"></script>
-<script src="niveau2.js"></script>
-<script src="niveau3.js"></script>
-<script src="niveau4.js"></script>
-<script src="niveau5.js"></script>
-<script src="niveau6.js"></script>
-<script src="script.js"></script>
-
+  <script src="niveau1.js"></script>
+  <script src="niveau2.js"></script>
+  <script src="niveau3.js"></script>
+  <script src="niveau4.js"></script>
+  <script src="niveau5.js"></script>
+  <script src="niveau6.js"></script>
+  <script src="script.js"></script>
 
 </body>
+
 </html>
