@@ -8,7 +8,10 @@ const cy = cytoscape({
         'background-color': '#cbd5e1',
         'label': 'data(label)',
         'color': '#374151',
-        'font-weight': '700',
+        
+        /* --- CORRECTION 1 : 'bold' au lieu de '700' --- */
+        'font-weight': 'bold',
+        
         'text-valign': 'center', 'text-halign': 'center',
         'width': 38, 'height': 38,
         'border-width': 2,
@@ -37,7 +40,8 @@ const cy = cytoscape({
     }
   ],
   layout: { name: 'preset' },
-  wheelSensitivity: 0.2,
+  
+  wheelSensitivity: 0.1,
 });
 
 /* ==== Sélecteurs UI ==== */
@@ -141,6 +145,61 @@ function applyColumnsByPart() {
     });
   });
   cy.fit(undefined, 40);
+}
+
+
+
+/* Layout Triangulaire (Spécifique pour 3 parties) */
+/* Layout Triangulaire : Place les groupes sur les CÔTÉS du triangle */
+function applyTriangleLayout() {
+  const centerX = window.innerWidth < 1000 ? 300 : 400; 
+  const centerY = 350; 
+  const radius = 280;  
+
+  // Sommets du triangle
+  const p1 = { x: centerX, y: centerY - radius }; // Haut
+  const p2 = { 
+    x: centerX + radius * Math.cos(Math.PI / 6), 
+    y: centerY + radius * Math.sin(Math.PI / 6) 
+  }; // Bas Droite
+  const p3 = { 
+    x: centerX + radius * Math.cos(5 * Math.PI / 6), 
+    y: centerY + radius * Math.sin(5 * Math.PI / 6) 
+  }; // Bas Gauche
+
+  // Définition des côtés (segments)
+  const sides = [
+    { part: 1, start: p1, end: p2 }, // Partie 1 : côté droit
+    { part: 2, start: p2, end: p3 }, // Partie 2 : côté bas
+    { part: 3, start: p3, end: p1 }  // Partie 3 : côté gauche
+  ];
+
+  const groups = {};
+  cy.nodes().forEach(n => {
+    const p = n.data('part') || 1;
+    (groups[p] ||= []).push(n);
+  });
+
+  sides.forEach(side => {
+    const nodes = groups[side.part];
+    if (!nodes) return;
+
+    // Tri pour garder l'ordre constant
+    nodes.sort((a, b) => (a.data('order') || 0) - (b.data('order') || 0));
+
+    const count = nodes.length;
+    nodes.forEach((node, i) => {
+      // Position sur le segment (distribuée équitablement)
+      const t = (i + 1) / (count + 1);
+
+      const x = side.start.x + (side.end.x - side.start.x) * t;
+      const y = side.start.y + (side.end.y - side.start.y) * t;
+
+      node.position({ x, y });
+    });
+  });
+
+  cy.fit(undefined, 50);
 }
 
 /* ==== Création/Suppression d'arêtes par interaction ==== */
@@ -689,6 +748,12 @@ modeSel.addEventListener('change', () => {
   if (levelControls) levelControls.classList.toggle('hidden', mode !== 'levels');
   if (templateControls) templateControls.classList.toggle('hidden', mode !== 'templates');
   
+  /* On gère l'affichage du bouton EN DEHORS des if/else --- */
+  if (btnDeleteNode) {
+    // Si c'est 'levels', on cache ('none'), sinon on affiche par défaut ('')
+    btnDeleteNode.style.display = (mode === 'levels') ? 'none' : '';
+  }
+
   if (mode === 'levels') {
     ensureLevelOptions();
     if (levelSel && levelSel.value) setConsignesForLevel(levelSel.value);
@@ -809,7 +874,11 @@ document.getElementById('btnClear').addEventListener('click', () => {
 });
 
 document.getElementById('btnLayout').addEventListener('click', () => {
-  applyColumnsByPart();
+  if (CURRENT_CONTEXT.levelId === 'niveau6' && typeof applyTriangleLayout === 'function') {
+    applyTriangleLayout();
+  } else {
+    applyColumnsByPart();
+  }
 });
 
 document.getElementById('btnFit').addEventListener('click', () => {

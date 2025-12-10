@@ -1,9 +1,5 @@
 /* ==== Niveau 6 – Motos & Casques (avec boucle) ==== */
-/* Dépend de helpers dans script.js :
-   - cy
-   - setZone3Title(text), setConsignes(html)
-   - applyColumnsByPart(), refreshStats(), enableInteractiveEdges()
-*/
+/* Dépend de helpers dans script.js */
 (function () {
   const ID   = 'niveau6';
   const NAME = 'Niveau 6 – Motos & Casques';
@@ -78,7 +74,13 @@
     ]);
 
     // Layout & interactions
-    applyColumnsByPart();
+    // MODIFICATION ICI : On utilise le layout triangulaire s'il existe
+    if (typeof applyTriangleLayout === 'function') {
+      applyTriangleLayout();
+    } else {
+      applyColumnsByPart();
+    }
+
     refreshStats();
     enableInteractiveEdges();
 
