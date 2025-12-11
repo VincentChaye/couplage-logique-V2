@@ -158,37 +158,16 @@ function applyColumnsByPart() {
 }
 
 function applyTriangleLayout() {
-  const centerX = window.innerWidth < 1000 ? 300 : 400;
-  const centerY = 350;
-  const radius = 280;
+  const centerX = 400, centerY = 350, radius = 280;
   const p1 = { x: centerX, y: centerY - radius }; 
   const p2 = { x: centerX + radius * Math.cos(Math.PI / 6), y: centerY + radius * Math.sin(Math.PI / 6) }; 
   const p3 = { x: centerX + radius * Math.cos(5 * Math.PI / 6), y: centerY + radius * Math.sin(5 * Math.PI / 6) }; 
   const sides = [{ part: 1, start: p1, end: p2 }, { part: 2, start: p2, end: p3 }, { part: 3, start: p3, end: p1 }];
-  const groups = {};
-  cy.nodes().forEach(n => {
-    const p = n.data('part') || 1;
-    (groups[p] ||= []).push(n);
-  });
-  sides.forEach(side => {
-    const nodes = groups[side.part];
-    if (!nodes) return;
-    nodes.sort((a, b) => (a.data('order') || 0) - (b.data('order') || 0));
-    const count = nodes.length;
-    nodes.forEach((node, i) => {
-      const t = (i + 1) / (count + 1);
-      const x = side.start.x + (side.end.x - side.start.x) * t;
-      const y = side.start.y + (side.end.y - side.start.y) * t;
-      node.position({ x, y });
-    });
-  });
-  cy.fit(undefined, 50);
+  layoutPolygon(sides);
 }
 
 function applySquareLayout() {
-  const centerX = window.innerWidth < 1000 ? 300 : 400;
-  const centerY = 350;
-  const radius = 220;
+  const centerX = 400, centerY = 350, radius = 220;
   const p1 = { x: centerX - radius, y: centerY - radius }; 
   const p2 = { x: centerX + radius, y: centerY - radius };
   const p3 = { x: centerX + radius, y: centerY + radius };
@@ -199,6 +178,10 @@ function applySquareLayout() {
     { part: 3, start: p3, end: p4 },
     { part: 4, start: p4, end: p1 }
   ];
+  layoutPolygon(sides);
+}
+
+function layoutPolygon(sides) {
   const groups = {};
   cy.nodes().forEach(n => {
     const p = n.data('part') || 1;
@@ -225,7 +208,7 @@ function refreshStats() {
   el.textContent = `${cy.nodes().length} sommets, ${cy.edges().length} arêtes`;
 }
 
-/* ==== Interactions ==== */
+/* ==== Interactions (Création / Sélection) ==== */
 let firstNode = null;
 function edgeExists(a, b) {
   return cy.edges(`[source = "${a}"][target = "${b}"], [source = "${b}"][target = "${a}"]`).length > 0;
@@ -239,10 +222,20 @@ function enableInteractiveEdges() {
     if (!firstNode) {
       firstNode = node; node.addClass('selected-node'); return;
     }
+    
+    // CORRECTION : Empêcher les arêtes intra-parties (même colonne)
+    const pa = firstNode.data('part');
+    const pb = node.data('part');
+
     if (firstNode.id() !== node.id()) {
-      if (!edgeExists(firstNode.id(), node.id())) {
-        cy.add({ group: 'edges', data: { source: firstNode.id(), target: node.id() } });
-        refreshStats();
+      // On autorise seulement si les parties sont différentes
+      if (pa !== pb) {
+        if (!edgeExists(firstNode.id(), node.id())) {
+          cy.add({ group: 'edges', data: { source: firstNode.id(), target: node.id() } });
+          refreshStats();
+        }
+      } else {
+        console.log("Action interdite : Arête intra-partie");
       }
     }
     firstNode.removeClass('selected-node'); firstNode = null;
@@ -251,6 +244,7 @@ function enableInteractiveEdges() {
   let lastEdgeTap = { id: null, time: 0 };
   cy.on('tap', 'edge', (evt) => {
     const edge = evt.target, now = Date.now();
+    // Double tap -> Suppression
     if (lastEdgeTap.id === edge.id() && (now - lastEdgeTap.time) < 350) {
       edge.remove(); refreshStats(); lastEdgeTap = { id: null, time: 0 };
     } else {
@@ -259,36 +253,49 @@ function enableInteractiveEdges() {
   });
 }
 
-/* ==== Système de Victoire ==== */
+/* ==== Système de Victoire & POPUP ==== */
 let CURRENT_CONTEXT = { mode: 'levels', levelId: 'niveau1', layout: 'columns' };
 
-function ensureWinBanner() {
-  let banner = document.getElementById('win-banner');
-  if (!banner) {
-    const container = document.querySelector('#zone-3 > div') || document.getElementById('zone-3');
-    banner = document.createElement('div');
-    banner.id = 'win-banner';
-    banner.className = 'win-banner hidden';
-    banner.innerHTML = `<div class="wb-content">🎉 <span>Bravo !</span></div><div class="wb-actions"><button id="wbReplay" class="primary">Rejouer</button><button id="wbClose" class="ghost">Fermer</button></div>`;
-    container.appendChild(banner);
-    banner.querySelector('#wbClose').addEventListener('click', hideWinBanner);
-    banner.querySelector('#wbReplay').addEventListener('click', () => {
-      (banner._replay || defaultReplay)();
-      hideWinBanner();
-    });
+const PEDAGO_TEXTS = {
+  'niveau1': "<strong>Le Couplage Bipartite :</strong> Tu as relié deux groupes distincts (neveux et animaux). En maths, trouver le partenaire unique pour chacun, ça s'appelle un <strong>Couplage Parfait</strong> !",
+  'niveau2': "<strong>Logique & Élimination :</strong> Comme Sherlock Holmes, tu as procédé par élimination. En coloriant en <strong>Rouge</strong> ce qui est impossible, la solution <strong>Verte</strong> apparaît d'elle-même !",
+  'niveau3': "<strong>Les Contraintes :</strong> Ici, les règles interdisaient certaines couleurs (ex: Vert n'aime pas Jaune). Les graphes servent souvent à résoudre ce type de problèmes, comme pour créer des emplois du temps sans conflits.",
+  'niveau4': "<strong>La Modélisation :</strong> Tu as transformé des phrases compliquées en un dessin simple. C'est le super-pouvoir des graphes : <strong>rendre visible l'invisible</strong> pour mieux réfléchir.",
+  'niveau5': "<strong>Satisfaction de Contraintes :</strong> C'est comme un Sudoku ! Chaque trait rouge posé réduit les possibilités. Le graphe permet de visualiser toutes ces hypothèses d'un seul coup d'œil.",
+  'niveau6': "<strong>Le Cycle Tripartite :</strong> Bravo ! Tu as géré 3 groupes (Amis, Motos, Casques). La 'boucle' que tu as fermée (A → B → C → A) montre la cohérence parfaite des échanges."
+};
+
+const winDialog = document.getElementById('win-dialog');
+const btnCloseWin = document.getElementById('closeWin');
+const btnCloseModal = document.getElementById('btnCloseModal');
+const btnReplayModal = document.getElementById('btnReplayModal');
+
+if(btnCloseWin) btnCloseWin.addEventListener('click', () => winDialog.close());
+if(btnCloseModal) btnCloseModal.addEventListener('click', () => winDialog.close());
+if(btnReplayModal) btnReplayModal.addEventListener('click', () => {
+  winDialog.close();
+  defaultReplay();
+});
+
+// Nouvelle fonction qui ouvre la pop-up
+window.announceWin = function(msg) {
+  const oldBanner = document.getElementById('win-banner');
+  if (oldBanner) oldBanner.classList.add('hidden');
+
+  const lvlId = CURRENT_CONTEXT.levelId;
+  const pedagoText = PEDAGO_TEXTS[lvlId] || "Bravo ! Tu as maîtrisé ce graphe.";
+
+  const msgEl = document.getElementById('win-message');
+  const pedagoEl = document.getElementById('pedago-text');
+  
+  if(msgEl) msgEl.textContent = msg || "Niveau réussi !";
+  if(pedagoEl) pedagoEl.innerHTML = pedagoText;
+
+  if (winDialog && !winDialog.open) {
+    winDialog.showModal();
   }
-  return banner;
-}
-function showWinBanner(text, replayFn) {
-  const b = ensureWinBanner();
-  b.querySelector('span').textContent = text || "Niveau réussi !";
-  b._replay = replayFn || defaultReplay;
-  b.classList.remove('hidden');
-}
-function hideWinBanner() {
-  const b = document.getElementById('win-banner');
-  if (b) b.classList.add('hidden');
-}
+};
+
 function defaultReplay() {
   if (CURRENT_CONTEXT.mode === 'levels' && CURRENT_CONTEXT.levelId) {
     drawLevel(CURRENT_CONTEXT.levelId);
@@ -296,27 +303,21 @@ function defaultReplay() {
     initEditor();
   }
 }
-window.announceWin = function(msg) { showWinBanner(msg); };
 
-/* ==== NOUVEAU VÉRIFICATEUR GLOBAL ==== */
+/* ==== VÉRIFICATEUR GLOBAL (CORRIGÉ & ROBUSTE) ==== */
 window.checkGlobalSolution = function(solutionEdges) {
-  // 1. Normalisation des clés "source__target"
   const getKey = (id1, id2) => (id1 < id2 ? `${id1}__${id2}` : `${id2}__${id1}`);
   
-  // Set des solutions attendues
   const solKeys = new Set();
   solutionEdges.forEach(([a, b]) => solKeys.add(getKey(a, b)));
   const solCount = solKeys.size;
 
-  // 2. Récupération des arêtes du graphe
   const allEdges = cy.edges();
-
-  // 3. Comptes pour les deux conditions
-  let countGreen = 0;     // Pour Cond 2 (Vert uniquement)
-  let countGreenGrey = 0; // Pour Cond 1 (Vert + Gris)
-  
+  let countGreen = 0;     
+  let countGreenGrey = 0; 
   let validGreen = true;
   let validGreenGrey = true;
+  let redError = false; 
 
   allEdges.forEach(edge => {
     const s = edge.source().id();
@@ -326,23 +327,28 @@ window.checkGlobalSolution = function(solutionEdges) {
 
     const isGreen = edge.hasClass('edge-green');
     const isRed = edge.hasClass('edge-red');
-    // On considère Gris par défaut si ni vert ni rouge, ou explicitement gris
     const isGrey = edge.hasClass('edge-grey') || (!isGreen && !isRed);
 
-    // --- Cond 2 : Vert STRICT ---
+    // ERREUR FATALE : Si une solution est marquée en ROUGE, c'est perdu.
+    if (isSol && isRed) {
+      redError = true;
+    }
+
+    // 1. Condition Propre (Vert Strict)
     if (isGreen) {
       countGreen++;
       if (!isSol) validGreen = false;
     }
 
-    // --- Cond 1 : Vert + Gris (Brouillon accepté) ---
+    // 2. Condition Brouillon (Vert + Gris acceptés)
     if (isGreen || isGrey) {
       countGreenGrey++;
       if (!isSol) validGreenGrey = false;
     }
   });
 
-  // 4. Validation (Taille exacte + Contenu exact)
+  if (redError) return false;
+
   const winCondition1 = validGreenGrey && (countGreenGrey === solCount);
   const winCondition2 = validGreen && (countGreen === solCount);
 
@@ -393,7 +399,6 @@ function addAllPotentialEdges() {
 /* ==== Logique App ==== */
 function initEditor() {
   CURRENT_CONTEXT = { mode: 'editor', levelId: null, layout: 'columns' };
-  hideWinBanner();
   setZone3Title("Éditeur de graphe");
   setConsignes("Créez votre propre graphe en ajoutant des nœuds et en reliant les sommets.");
   refreshStats();
@@ -513,7 +518,6 @@ function drawLevel(levelId) {
   const isTriangle = (levelId === 'niveau6');
   CURRENT_CONTEXT = { mode: 'levels', levelId, layout: isTriangle ? 'triangle' : 'columns' };
   
-  hideWinBanner();
   setConsignesForLevel(levelId);
   const fnName = 'init' + levelId.charAt(0).toUpperCase() + levelId.slice(1);
   if (typeof window[fnName] === 'function') window[fnName]();
@@ -534,8 +538,8 @@ function initNiveau1() {
   ]);
   applyColumnsByPart(); refreshStats(); enableInteractiveEdges();
   
-  // Utilisation du NOUVEAU checker
   const sol = [["riri", "hamster"], ["fifi", "peroquet"], ["loulou", "chat"]];
+  // CORRECTION : Plus de setTimeout, vérification directe après l'application de la classe (synchronisé dans l'event add)
   cy.on('add remove', 'edge', () => window.checkGlobalSolution(sol));
 }
 
@@ -611,14 +615,16 @@ document.getElementById('closeHelp').addEventListener('click', () => help.close(
     currentIndex = (currentIndex + 1) % COLORS.length;
     updateVisuals();
   });
+  
+  // CORRECTION CRITIQUE : Suppression du setTimeout pour éviter le décalage à la vérification
   cy.on('add', 'edge', (evt) => {
     const edge = evt.target;
-    setTimeout(() => {
-      if (!edge.hasClass('edge-green') && !edge.hasClass('edge-red') && !edge.hasClass('edge-grey')) {
-        edge.addClass(`edge-${COLORS[currentIndex]}`);
-      }
-    }, 0);
+    // Application IMMEDIATE de la couleur
+    if (!edge.hasClass('edge-green') && !edge.hasClass('edge-red') && !edge.hasClass('edge-grey')) {
+      edge.addClass(`edge-${COLORS[currentIndex]}`);
+    }
   });
+  
   updateVisuals();
 })();
 

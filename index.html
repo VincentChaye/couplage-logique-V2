@@ -111,13 +111,37 @@
     </aside>
   </main>
 
+  <dialog id="win-dialog">
+    <div class="modal-header win-header">
+      <strong>🎉 Niveau Terminé !</strong>
+      <button class="info-btn" id="closeWin" aria-label="Fermer" style="background:transparent; border:1px solid white;">×</button>
+    </div>
+    <div class="modal-body">
+      <div style="text-align: center; margin-bottom: 20px;">
+        <span style="font-size: 40px;">🏆</span>
+        <h2 style="margin: 10px 0; color: var(--success);">Bravo !</h2>
+        <p id="win-message">Tu as trouvé la solution.</p>
+      </div>
+
+      <div class="pedago-box">
+        <h3>💡 Le point Savant</h3>
+        <p id="pedago-text">Explication pédagogique...</p>
+      </div>
+
+      <div class="row" style="margin-top: 20px; justify-content: center;">
+        <button class="secondary" id="btnReplayModal">🔄 Rejouer</button>
+        <button class="ghost" id="btnCloseModal">Fermer</button>
+      </div>
+    </div>
+  </dialog>
+
   <dialog id="help">
     <div class="modal-header">
       <strong>Guide d'utilisation</strong>
       <button class="info-btn" id="closeHelp" aria-label="Fermer" style="background:transparent; border:1px solid white;">×</button>
     </div>
     <div class="modal-body">
-      <h3 style="margin-top:0">Bienvenue sur l'Atelier Graphes</h3>
+      <h3 style="margin-top:0">👋 Bienvenue sur l'Atelier Graphes</h3>
       <p>Cette application vous permet de manipuler des graphes aux couleurs de <strong>Terra Numerica</strong>.</p>
 
       <h3>🛠️ Fonctionnalités Clés</h3>
@@ -130,7 +154,7 @@
       </ul>
       <em>Astuce : Utilisez le Vert pour "sûr" et le Rouge pour "impossible".</em></p>
 
-      <p><strong>Modèles Géométriques</strong><br>
+      <p><strong>📐 Modèles Géométriques</strong><br>
       Les templates complets s'organisent automatiquement :
       <ul>
         <li><strong>K3,3</strong> (Bipartite) → Colonnes</li>
@@ -139,7 +163,7 @@
       </ul>
       Cliquez sur <strong>"Réorganiser"</strong> pour retrouver ces formes parfaites.</p>
 
-      <h3>Comment jouer ?</h3>
+      <h3>🚀 Comment jouer ?</h3>
       
       <h4>Mode Éditeur</h4>
       <ul>
@@ -155,7 +179,7 @@
         <li>Utilisez le bouton <strong>"Voir arêtes possibles"</strong> pour afficher en gris ce qu'il reste à tester.</li>
       </ol>
 
-      <h3>Sauvegarde</h3>
+      <h3>💾 Sauvegarde</h3>
       <p>Utilisez les boutons <strong>Exporter / Importer JSON</strong> pour sauvegarder votre progression.</p>
       
       <hr style="margin: 20px 0; border: 0; border-top: 1px solid #eee;">
